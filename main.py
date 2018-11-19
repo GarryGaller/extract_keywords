@@ -11,7 +11,7 @@ from extract_keywords import (
 
 
 if __name__ == "__main__":
-    import news # текст для анализа
+    import news # тексты для анализа
     
     typ = ['sport', 'politics',  'economy']
     corpus = [news.sport, news.politics,  news.economy]
@@ -34,7 +34,7 @@ if __name__ == "__main__":
     ]
     
     
-    result = []
+    result  = []
     
     for tokens in corpus:
         uniq_tokens = set(tokens)
@@ -48,35 +48,53 @@ if __name__ == "__main__":
      
     for idx, tokens in enumerate(result):
         print('type',typ[idx])
-        top= sorted(
+        top = sorted(
             tokens.items(),
             key=lambda x:x[1],
             reverse=True)[:7] # первые 7 слов по весу TF-IDF
         pprint(top)
+        
+    for idx, tokens in enumerate(result):
+        print('type',typ[idx])
+        top = sorted(
+            tokens,
+            key=tokens.get,
+            reverse=True)[:7] # первые 7 слов по весу TF-IDF
+        pprint(top)     
+        
+        
 
 '''        
 type sport
 [('чемпионат', 0.20986),
  ('орсера', 0.1574),
- ('медведева', 0.10493),
- ('работа', 0.10493),
  ('катание', 0.10493),
+ ('работа', 0.10493),
+ ('медведева', 0.10493),
  ('тренер', 0.10493),
  ('россия', 0.1)]
 type politics
 [('китай', 0.12492),
  ('выставка', 0.09993),
- ('медведев', 0.07495),
  ('товар', 0.07495),
+ ('медведев', 0.07495),
  ('участник', 0.04997),
- ('страна', 0.04997),
- ('продукция', 0.04997)]
+ ('продукция', 0.04997),
+ ('страна', 0.04997)]
 type economy
 [('мусор', 0.17735),
  ('город', 0.11823),
  ('значение', 0.08867),
  ('год', 0.07918),
  ('регион', 0.05939),
- ('январь', 0.05912),
+ ('законопроект', 0.05912),
  ('территория', 0.05912)]
+
+type sport
+['чемпионат', 'орсера', 'катание', 'работа', 'медведева', 'тренер', 'россия']
+type politics
+['китай', 'выставка', 'товар', 'медведев', 'участник', 'продукция', 'страна']
+type economy
+['мусор', 'город', 'значение', 'год', 'регион', 'законопроект', 'территория']
+
 ''' 

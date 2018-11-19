@@ -8,7 +8,7 @@ def simple_tokenize(text):
     return re.findall('\w+',text)
 
 
-def lemmatize(tokens,grammeme=None, extra=None):
+def lemmatize(tokens, grammeme=None, extra=None):
     '''Возвращает из переданного списка только те слова, 
     чья часть речи совпадает с указанной граммемой OpenCorpora
     http://opencorpora.org/dict.php?act=gram. 
@@ -19,7 +19,7 @@ def lemmatize(tokens,grammeme=None, extra=None):
         parse = morph.parse(term)[0] 
         tag = parse.tag  # OpencorporaTag
         # если слово == часть_речи_существительное
-        if grammeme and tag.POS != grammeme or extra in tag:
+        if (grammeme and tag.POS != grammeme) or (extra in tag):
             continue
         else:
             # приводим женские фамилии с окончанием на -ой 
@@ -47,12 +47,14 @@ def tf(term, words, sublinear_tf=False):
     return _tf 
 
 
-def idf(term, corpus,smooth_idf=None):
+def idf(term, corpus, smooth_idf=None):
     """
     idf - логарифм от количества текстов в корпусе, 
     разделенное на число текстов, где термин встречается. 
-    Если термин не появляется в корпусе или появляется во всех документах, возвращается 0.0.
-    Принимает слово, для которого считаем IDF и корпус документов в виде списка списков слов.
+    Если термин не появляется в корпусе или появляется во всех документах, 
+    возвращается 0.0.
+    Принимает слово, для которого считаем IDF и корпус документов 
+    в виде списка списков слов.
     """
     n_samples = len(corpus)
     
@@ -76,17 +78,5 @@ def clean_text(tokens,stopwords,ignore_len=2047):
             continue        
         yield term
 
-
-
-    
-        
-            
-       
-        
-         
-    
-    
-
-
-
-         
+if __name__ == "__main__":
+    pass
