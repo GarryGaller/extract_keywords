@@ -72,7 +72,7 @@ def idf(term, corpus, smooth_idf=None):
     return _idf  
  
 
-def clean_text(tokens,stopwords,ignore_len=2047):
+def clean_text(tokens,stopwords,ignore_len=0):
     for term in tokens:
         if term in stopwords or len(term) <= ignore_len:
             continue        
