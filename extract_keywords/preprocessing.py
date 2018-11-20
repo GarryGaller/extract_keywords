@@ -5,6 +5,27 @@ import re
 
 morph = pymorphy2.MorphAnalyzer()
 
+'''
+Полный список граммем здесь: http://opencorpora.org/dict.php?act=gram
+NOUN	имя существительное	хомяк
+ADJF	имя прилагательное (полное)	хороший
+ADJS	имя прилагательное (краткое)	хорош
+COMP	компаратив	лучше, получше, выше
+VERB	глагол (личная форма)	говорю, говорит, говорил
+INFN	глагол (инфинитив)	говорить, сказать
+PRTF	причастие (полное)	прочитавший, прочитанная
+PRTS	причастие (краткое)	прочитана
+GRND	деепричастие	прочитав, рассказывая
+NUMR	числительное	три, пятьдесят
+ADVB	наречие	круто
+NPRO	местоимение-существительное	он
+PRED	предикатив	некогда
+PREP	предлог	в
+CONJ	союз	и
+PRCL	частица	бы, же, лишь
+INTJ	междометие	ой
+'''
+
 
 def nltk_preprocessor(sentences):
     ''' токенизация + стемминг'''
@@ -21,11 +42,11 @@ def nltk_preprocessor(sentences):
 
 
 def preprocessor(corpus, 
-        include_pos={'NOUN'},
-        exclude_tag={'Name'}, 
+        include_pos={'NOUN','ADJF'},
+        exclude_tag={}, 
         uniq=list,
         stopwords=[],
-        ignore_len=3
+        ignore_len=0
         ):
     '''токенизация + 
     нормализация регистра + 
