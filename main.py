@@ -3,23 +3,22 @@ import re
 from pprint import pprint
 import extract_keywords
 from extract_keywords import (
-    clean_text, 
+    cleaning, 
     lemmatize, 
     simple_tokenize, 
     tf, idf, stopwords
     )
 
+import gensim
+import gensim.summarization as gs
+from gensim.summarization import keywords
 
-if __name__ == "__main__":
-    import news # тексты для анализа
-    
-    typ = ['sport', 'politics',  'economy']
-    corpus = [news.sport, news.politics,  news.economy]
-    
+
+def create_corpus(corpus):
     # примитивная токенизация + нормализация регистра + игнорирование стоп-слов + лемматизация
     corpus = [
                 [term for term in lemmatize(
-                        clean_text(        # очистка от стоп-слов
+                        cleaning(        # очистка от стоп-слов
                             map(
                                 str.lower, # нормализация регистра
                                 simple_tokenize(doc) # токенизация
@@ -32,7 +31,13 @@ if __name__ == "__main__":
                    ) 
             ]  for doc in corpus
     ]
+
+    return corpus
+
+
+def test_tfidf(corpus):
     
+    corpus = create_corpus(corpus)
     
     result  = []
     
@@ -62,6 +67,33 @@ if __name__ == "__main__":
             reverse=True)[:7] # первые 7 слов по весу TF-IDF
         pprint(top)     
         
+    
+def test_gensim(corpus):    
+    '''В gensim используется алгоритм TextRank'''
+    
+    corpus = create_corpus(corpus)
+    # так как метод keywords не принимает на обработку ничего, кроме строки текста
+    # то делаем всю предварительную работу как обычно, а потом просто конкатенируем
+    # через пробел все получившиеся токены
+    corpus = [' '.join(tokens)  for tokens in corpus]
+    #print(corpus)
+    
+    for idx,text in enumerate(corpus):
+        # по умолчанию scores = False, оценки не выводятся
+        res = gs.keywords(text,words=7,scores=True) 
+        print('type',typ[idx])
+        pprint(res)
+
+
+
+if __name__ == "__main__":
+    import news # тексты для анализа
+    typ = ['sport', 'politics',  'economy']
+    corpus = [news.sport, news.politics,  news.economy]
+    
+    test_tfidf(corpus)
+    print('-' * 15)
+    test_gensim(corpus)
         
 
 '''        
@@ -96,5 +128,23 @@ type politics
 ['китай', 'выставка', 'товар', 'медведев', 'участник', 'продукция', 'страна']
 type economy
 ['мусор', 'город', 'значение', 'год', 'регион', 'законопроект', 'территория']
+---------------
+type sport
+[('чемпионат россия катание', 0.3068327671271174),
+ ('тренер орсера', 0.27558741871717746),
+ ('работа', 0.25563835229876686),
+ ('медведева', 0.19478566973449646)]
+type politics
+[('выставка товар', 0.2805391712616916),
+ ('медведев', 0.2447357455937165),
+ ('китаи участник', 0.2267156724927703),
+ ('россия продукция', 0.17115119843682902)]
+type economy
+[('мусор', 0.3911450765082161),
+ ('год регион', 0.28148914010665266),
+ ('город', 0.23050017112235235),
+ ('мегаполис', 0.20028980231724147),
+ ('отход', 0.19137889757997345),
+ ('утилизация', 0.18616344597515197)]
 
 ''' 

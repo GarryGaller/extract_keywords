@@ -18,15 +18,16 @@ def lemmatize(tokens, grammeme=None, extra=None):
         # первый объект Parse из всех возможных грамматических разборов слова
         parse = morph.parse(term)[0] 
         tag = parse.tag  # OpencorporaTag
-        # если слово == часть_речи_существительное
+        # если слово не заданная часть речи или в нем есть характеристики,
+        # по которым мы хотим фильтровать слова
         if (grammeme and tag.POS != grammeme) or (extra in tag):
             continue
         else:
             # приводим женские фамилии с окончанием на -ой 
-            # (род., дат., творит.падежи ) к правильной форме
+            # (род., дат., творит., предл. падежи ) к правильной форме
             if {'femn','Surn'} in tag:
                 # склоняем в именительный падеж един. число женского рода
-                nf = parse.inflect({'nomn','sing' ,'femn'}).word
+                nf = parse.inflect({'nomn', 'sing' ,'femn'}).word
             else:
                 # у прочих слов просто получаем нормальную форму: имен. падеж ед. число
                 nf = parse.normal_form
@@ -72,7 +73,7 @@ def idf(term, corpus, smooth_idf=None):
     return _idf  
  
 
-def clean_text(tokens,stopwords,ignore_len=0):
+def cleaning(tokens,stopwords,ignore_len=0):
     for term in tokens:
         if term in stopwords or len(term) <= ignore_len:
             continue        
