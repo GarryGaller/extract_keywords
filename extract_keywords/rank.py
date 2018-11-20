@@ -4,7 +4,8 @@ import networkx as nx
 
 
 def similarity(s1, s2):
-    '''Мера похожести  - коэффициент Сёренсена - 
+    '''Мера сходства - коэффициент Сёренсена - 
+    https://ru.wikipedia.org/wiki/Коэффициент_Сёренсена
     отношение количества одинаковых слов в 
     предложениях к суммарной длине предложений.
     ''' 
@@ -18,7 +19,7 @@ def textrank(words,sentences,sort_by_pr=True):
 
     # создаем все возможные комбинации (без повторов) из двух предложений
     pairs = combinations(range(len(sentences)), 2)
-    # вычисляем меру похожести между предложениями в паре (1s, 2s, похожесть)
+    # вычисляем меру похожести между предложениями в паре (1s, 2s, оценка_сходства)
     scores = [
         (i, j, similarity(words[i], words[j])) 
         for i, j in pairs
@@ -42,10 +43,3 @@ def textrank(words,sentences,sort_by_pr=True):
     if sort_by_pr:
         data = sorted(data,key=lambda x: x[1], reverse=True)
     return data, scores, pr
-   
-
-    
-
-
-      
-    

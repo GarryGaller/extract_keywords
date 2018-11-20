@@ -83,6 +83,7 @@ def test_textrank(corpus):
         # сегментация на предложения
         sentences = sent_tokenize(text)
         # токенизация\очистка\стемминг или лемматиазция
+        # список множеств слов каждого предложения [{a,b,...},{c,d,...},{d,c,a,...},...]
         words = preprocessor(
             sentences,
             include_pos={'NOUN'},  # фильтр по основным граммемам - берем только существительные
@@ -90,6 +91,7 @@ def test_textrank(corpus):
             uniq=set
         )
         tr, scores, pr = textrank(words,sentences) 
+        #pprint(scores)
         #pprint(words)
         # топ ключевых фраз отсортированных по рейтингу
         top_n = tr[:2]
