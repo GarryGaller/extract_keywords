@@ -23,7 +23,9 @@ def test_tfidf(corpus):
     corpus = preprocessor(
         corpus,
         include_pos={'NOUN'},  # фильтр по основным граммемам - берем только существительные
-        exclude_tag={'Name'}   # фильтр по дополнительным граммемам: игнорируем личные имена 
+        exclude_tag={'Name'},  # фильтр по дополнительным граммемам: игнорируем личные имена
+        stopwords=stopwords,   # список stop слов
+        ignore_len=3           # длина слов которые будут игнорироваться, если равно или меньше
     )
     
     result  = []
@@ -40,19 +42,19 @@ def test_tfidf(corpus):
      
     for idx, tokens in enumerate(result):
         print('type',typ[idx])
-        top = sorted(
+        top_n = sorted(
             tokens.items(),
             key=lambda x:x[1],
             reverse=True)[:7] # первые 7 слов по весу TF-IDF
-        pprint(top)
+        pprint(top_n)
         
     for idx, tokens in enumerate(result):
         print('type',typ[idx])
-        top = sorted(
+        top_n = sorted(
             tokens,
             key=tokens.get,
             reverse=True)[:7] # первые 7 слов по весу TF-IDF
-        pprint(top)     
+        pprint(top_n)     
         
     
 def test_gensim(corpus):    
@@ -61,7 +63,9 @@ def test_gensim(corpus):
     corpus = preprocessor(
         corpus,
         include_pos={'NOUN'},  # фильтр по основным граммемам - берем только существительные
-        exclude_tag={'Name'}   # фильтр по дополнительным граммемам: игнорируем личные имена 
+        exclude_tag={'Name'},  # фильтр по дополнительным граммемам: игнорируем личные имена
+        stopwords=stopwords,   # список stop слов
+        ignore_len=3           # длина слов которые будут игнорироваться, если равно или меньше
     )
     # так как метод keywords не принимает на обработку ничего, кроме строки текста
     # то делаем всю предварительную работу как обычно, а потом просто конкатенируем
@@ -71,9 +75,9 @@ def test_gensim(corpus):
     
     for idx,text in enumerate(corpus):
         # по умолчанию scores = False, оценки не выводятся
-        res = gs.keywords(text,words=7,scores=True) 
+        top_n = gs.keywords(text,words=7,scores=True) 
         print('type',typ[idx])
-        pprint(res)
+        pprint(top_n)
 
 
 def test_textrank(corpus):
@@ -88,8 +92,11 @@ def test_textrank(corpus):
             sentences,
             include_pos={'NOUN'},  # фильтр по основным граммемам - берем только существительные
             exclude_tag={'Name'},  # фильтр по дополнительным граммемам: игнорируем личные имена 
-            uniq=set
+            uniq=set,              # для этого алгоритма требуется уникализировать слова предложения
+            stopwords=stopwords,   # список stop слов
+            ignore_len=3           # длина слов которые будут игнорироваться, если равно или меньше
         )
+        
         tr, scores, pr = textrank(words,sentences) 
         #pprint(scores)
         #pprint(words)

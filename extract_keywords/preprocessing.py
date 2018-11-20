@@ -1,6 +1,5 @@
 from nltk.tokenize import RegexpTokenizer
 from nltk.stem.snowball import RussianStemmer
-from .stopwords import stopwords        
 import pymorphy2
 import re
 
@@ -24,7 +23,10 @@ def nltk_preprocessor(sentences):
 def preprocessor(corpus, 
         include_pos={'NOUN'},
         exclude_tag={'Name'}, 
-        uniq=list):
+        uniq=list,
+        stopwords=[],
+        ignore_len=3
+        ):
     '''токенизация + 
     нормализация регистра + 
     игнорирование стоп-слов +
@@ -34,8 +36,8 @@ def preprocessor(corpus,
                 lemmatize(                                 # лемматизация 
                     cleaning(                              # очистка от стоп-слов
                         simple_tokenize(text.lower()),     # токенизация
-                        stopwords,                         # список стоп-слов
-                        ignore_len=3                       # игнорировать слова с длиной меньше или равной 3 символам
+                        stopwords=stopwords,               # список стоп-слов
+                        ignore_len=ignore_len              # игнорировать слова с длиной меньше или равной 3 символам
                     ),
                    include_pos=include_pos,                # фильтр по основным граммемам 
                    exclude_tag=exclude_tag                 # фильтр по дополнительным граммемам 
