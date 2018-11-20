@@ -3,41 +3,28 @@ import re
 from pprint import pprint
 import extract_keywords
 from extract_keywords import (
+    preprocessor,
     cleaning, 
     lemmatize, 
     simple_tokenize, 
+    textrank,
     tf, idf, stopwords
     )
 
 import gensim
 import gensim.summarization as gs
 from gensim.summarization import keywords
+from nltk.tokenize import sent_tokenize
 
-
-def create_corpus(corpus):
-    # примитивная токенизация + нормализация регистра + игнорирование стоп-слов + лемматизация
-    corpus = [
-                [term for term in lemmatize(
-                        cleaning(        # очистка от стоп-слов
-                            map(
-                                str.lower, # нормализация регистра
-                                simple_tokenize(doc) # токенизация
-                            ),
-                        stopwords,   # список стоп-слов
-                        ignore_len=3 # игнорировать слова с длиной меньше или равной 3 букв
-                    ),
-                   'NOUN',  # берем только существительные 
-                   extra={'Name'} # игнорируем личные имена, фамилии будут использоваться
-                   ) 
-            ]  for doc in corpus
-    ]
-
-    return corpus
 
 
 def test_tfidf(corpus):
     
-    corpus = create_corpus(corpus)
+    corpus = preprocessor(
+        corpus,
+        include_pos={'NOUN'},  # фильтр по основным граммемам - берем только существительные
+        exclude_tag={'Name'}   # фильтр по дополнительным граммемам: игнорируем личные имена 
+    )
     
     result  = []
     
@@ -71,7 +58,11 @@ def test_tfidf(corpus):
 def test_gensim(corpus):    
     '''В gensim используется алгоритм TextRank'''
     
-    corpus = create_corpus(corpus)
+    corpus = preprocessor(
+        corpus,
+        include_pos={'NOUN'},  # фильтр по основным граммемам - берем только существительные
+        exclude_tag={'Name'}   # фильтр по дополнительным граммемам: игнорируем личные имена 
+    )
     # так как метод keywords не принимает на обработку ничего, кроме строки текста
     # то делаем всю предварительную работу как обычно, а потом просто конкатенируем
     # через пробел все получившиеся токены
@@ -85,6 +76,27 @@ def test_gensim(corpus):
         pprint(res)
 
 
+def test_textrank(corpus):
+    '''Извлекаем ключевые фразы'''
+    
+    for idx,text in enumerate(corpus):
+        # сегментация на предложения
+        sentences = sent_tokenize(text)
+        # токенизация\очистка\стемминг или лемматиазция
+        words = preprocessor(
+            sentences,
+            include_pos={'NOUN'},  # фильтр по основным граммемам - берем только существительные
+            exclude_tag={'Name'},  # фильтр по дополнительным граммемам: игнорируем личные имена 
+            uniq=set
+        )
+        tr, scores, pr = textrank(words,sentences) 
+        #pprint(words)
+        # топ ключевых фраз отсортированных по рейтингу
+        top_n = tr[:2]
+        print('type',typ[idx])
+        pprint(top_n)
+
+
 
 if __name__ == "__main__":
     import news # тексты для анализа
@@ -94,7 +106,8 @@ if __name__ == "__main__":
     test_tfidf(corpus)
     print('-' * 15)
     test_gensim(corpus)
-        
+    print('-' * 15)
+    test_textrank(corpus)   
 
 '''        
 type sport
@@ -146,5 +159,35 @@ type economy
  ('мегаполис', 0.20028980231724147),
  ('отход', 0.19137889757997345),
  ('утилизация', 0.18616344597515197)]
+--------------- 
+type sport
+[(0,
+  0.2726690667680029,
+  'Канадский тренер Брайан Орсер, являющийся наставником российской фигуристки '
+  'Евгении Медведевой, \n'
+  'подтвердил, что не поедет со своей воспитанницей на чемпионат России по '
+  'фигурному катанию.'),
+ (6,
+  0.20719777155135768,
+  'Чемпионат России по фигурному катанию пройдёт с 19 по 23 декабря в '
+  'Саранске.')]
+type politics
+[(17, 0.08551061189228006, 'На экспорт в Китай Россия делает большие ставки.'),
+ (2,
+  0.0829566930899155,
+  'Что с этим делать — говорили на первой в истории КНР выставке импортных '
+  'товаров.')]
+type economy
+[(5,
+  0.16382613255496373,
+  'У городов федерального значения территория равна границам региона, поэтому '
+  'на ней запрещено создавать свалки собранного мусора.'),
+ (10,
+  0.13136988154721627,
+  'Тогда часть мусора можно будет перерабатывать на территории городов, что '
+  'должно положительно сказаться на стоимости коммунальной услуги по вывозу '
+  'мусора.')] 
+ 
+ 
 
 ''' 
